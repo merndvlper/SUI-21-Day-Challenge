@@ -7,8 +7,8 @@
 ///
 /// Note: You can copy code from day_06/sources/solution.move if needed
 
-module challenge::day_07 {
-    use std::vector;
+module challenge::day_07;
+
     use std::string::{Self, String};
 
     // Copy from day_06: Habit struct with String
@@ -45,7 +45,7 @@ module challenge::day_07 {
 
     public fun complete_habit(list: &mut HabitList, index: u64) {
         let len = vector::length(&list.habits);
-        if (index < len) {
+        if (index <= len) {
             let habit = vector::borrow_mut(&mut list.habits, index);
             habit.completed = true;
         }
@@ -53,23 +53,41 @@ module challenge::day_07 {
 
     // Note: assert! is a built-in macro in Move 2024 - no import needed!
 
-    // TODO: Write a test 'test_add_habits' that:
-    // - Creates an empty list
-    // - Adds 1-2 habits
-    // - Checks that the list length is correct
-    // #[test]
-    // fun test_add_habits() {
-    //     // Your code here
-    //     // Use b"Exercise".to_string() to create a String
-    // }
+// TODO: Write a test 'test_add_habits' that:
 
-    // TODO: Write a test 'test_complete_habit' that:
-    // - Creates a list and adds a habit
-    // - Completes the habit
-    // - Checks that completed == true
-    // #[test]
-    // fun test_complete_habit() {
-    //     // Your code here
-    // }
+#[test_only]
+use std::debug::print;
+
+#[test]
+fun test_add_habit(){
+    let mut habit_list= empty_list();
+
+    let habit = b"Early Get Up".to_string();
+
+    let new_habit = new_habit(habit);
+    let new_habit_2 = new_habit(b"do_homework".to_string());
+
+
+    add_habit(&mut habit_list, new_habit);
+    add_habit(&mut habit_list, new_habit_2);
+
+    assert!(habit_list.habits.length() == 2, 5);
+
 }
+    
+#[test]
+fun test_complete_habit() {
+    let mut list= empty_list();
+    let new_habit = new_habit(b"Move Challenge day07".to_string());
+
+    add_habit(&mut list, new_habit);
+
+    complete_habit(&mut list, 0);
+
+    print(&list.habits[0]);
+
+    assert!(list.habits[0].completed == true , 5);
+}
+
+
 
