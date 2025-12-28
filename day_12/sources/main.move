@@ -7,56 +7,88 @@
 ///
 /// Note: You can copy code from day_11/sources/solution.move if needed
 
-module challenge::day_12 {
-    use std::vector;
-    use std::string::String;
-    use std::option::{Self, Option};
+module challenge::day_12;
 
-    // Copy from day_11: TaskStatus, Task, and TaskBoard
-    public enum TaskStatus has copy, drop {
-        Open,
-        Completed,
-    }
+use std::string::String;
+use std::vector;
 
-    public struct Task has copy, drop {
-        title: String,
-        reward: u64,
-        status: TaskStatus,
-    }
-
-    public struct TaskBoard has drop {
-        owner: address,
-        tasks: vector<Task>,
-    }
-
-    public fun new_task(title: String, reward: u64): Task {
-        Task {
-            title,
-            reward,
-            status: TaskStatus::Open,
-        }
-    }
-
-    public fun new_board(owner: address): TaskBoard {
-        TaskBoard {
-            owner,
-            tasks: vector::empty(),
-        }
-    }
-
-    public fun add_task(board: &mut TaskBoard, task: Task) {
-        vector::push_back(&mut board.tasks, task);
-    }
-
-    // TODO: Write a function 'find_task_by_title' that:
-    // - Takes board: &TaskBoard and title: &String
-    // - Returns Option<u64> (the index if found, None if not found)
-    // - Loops through tasks and compares titles
-    // public fun find_task_by_title(board: &TaskBoard, title: &String): Option<u64> {
-    //     // Your code here
-    //     // Use a while loop to iterate
-    //     // Use option::some(index) if found
-    //     // Use option::none() if not found
-    // }
+const NOT_VALID_VALUE:u64 = 1;
+// Copy from day_11: TaskStatus, Task, and TaskBoard
+public enum TaskStatus has copy, drop {
+    Open,
+    Completed,
 }
+
+public struct Task has copy, drop {
+    title: String,
+    reward: u64,
+    status: TaskStatus,
+}
+
+public struct TaskBoard has drop {
+    owner: address,
+    tasks: vector<Task>,
+}
+
+public fun new_task(title: String, reward: u64): Task {
+    Task {
+        title,
+        reward,
+        status: TaskStatus::Open,
+    }
+}
+
+public fun new_board(owner: address): TaskBoard {
+    TaskBoard {
+        owner,
+        tasks: vector::empty(),
+    }
+}
+
+public fun add_task(board: &mut TaskBoard, task: Task) {
+    vector::push_back(&mut board.tasks, task);
+}
+
+// TODO: Write a function 'find_task_by_title' that:
+public fun find_task_by_title(board: &TaskBoard, title: &String ):Option<u64>{
+
+    let length = vector::length(&board.tasks); 
+    let mut index = 0;
+
+    while(index < length){ // Etkinliğe gidilecek [9]
+        let task = vector::borrow(&board.tasks, index);
+        if(*&task.title == *title){
+            return option::some(index)
+        };
+        index = index + 1;
+    };
+
+    option::none()
+}
+
+#[test_only]
+use std::option::is_some;
+
+#[test_only]
+use std::debug::print;
+
+#[test]
+fun test_find_task_by_title(){
+    let mut board = new_board(@0x00123);
+
+    let new_task= new_task(b"Challenge 12".to_string(), 100);
+    let new_task_2= new_task(b"Corba".to_string(), 120);
+
+    add_task(&mut board , new_task);
+    add_task(&mut board , new_task_2);
+
+    let result = find_task_by_title(&board, &(b"Corba".to_string()));
+
+    let booll = is_some(&result);
+
+    assert!(booll == true, NOT_VALID_VALUE);
+
+    print(&result);
+}
+
 
